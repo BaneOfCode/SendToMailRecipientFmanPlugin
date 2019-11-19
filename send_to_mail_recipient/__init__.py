@@ -6,11 +6,14 @@ import win32com.client as win32
 
 class SendToMailRecipient(DirectoryPaneCommand):
     def __call__(self):
-        chosen_file = self.pane.get_file_under_cursor()
-        file_to_send = as_human_readable(chosen_file)
-        file_name = basename(chosen_file)
         outlook = win32.Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.Subject = "Attachment  file: " + file_name
-        mail.Attachments.Add(Source=file_to_send)
+        chosen_files = self.pane.get_selected_files()
+        if not chosen_files:
+            show_alert('No file selected.')
+            return
+        for chosen_file in chosen_files:
+            file_to_send = as_human_readable(chosen_file)
+            mail.Attachments.Add(Source=file_to_send)
+
         mail.Display(True)
